@@ -4,21 +4,105 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Study Session Planner</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #eff6ff;
+      margin: 0;
+      padding: 20px;
+      color: #1e293b;
+    }
+    .card {
+      max-width: 460px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 12px;
+      border-top: 6px solid #2563eb;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+    }
+    h1 { margin: 0 0 4px; font-size: 24px; color: #1d4ed8; }
+    .made-by { margin: 0 0 20px; font-size: 14px; color: #64748b; }
+    label { display: block; margin-bottom: 12px; font-size: 14px; font-weight: bold; }
+    input {
+      display: block;
+      width: 100%;
+      margin-top: 4px;
+      padding: 8px;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    input:focus { outline: 2px solid #60a5fa; border-color: #2563eb; }
+    .row { display: flex; gap: 12px; }
+    .row label { flex: 1; }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 4px;
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover { background: #1d4ed8; }
+    #result {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 6px;
+      background: #dbeafe;
+      color: #1e3a8a;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    #result.error { background: #fef2f2; color: #991b1b; }
+    #result:empty { display: none; }
+    footer { margin-top: 20px; text-align: center; font-size: 12px; color: #94a3b8; }
+  </style>
 </head>
 <body>
-  <h1>Study Session Planner</h1>
-  <p>Made by: <Member 1 name> and <Member 2 name></p>
-  <label>Total study time (minutes): <input id="totalMinutes" type="number" value="120"></label><br>
-  <label>Focus length (minutes): <input id="focusMinutes" type="number" value="25"></label><br>
-  <label>Short break (minutes): <input id="shortBreak" type="number" value="5"></label><br>
-  <label>Long break (minutes): <input id="longBreak" type="number" value="15"></label><br>
-  <label>Pomodoros before a long break: <input id="cycle" type="number" value="4"></label><br>
-  <label>Start time: <input id="startTime" type="time" value="14:00"></label><br>
-  <button id="calculate">Plan my session</button>
-  <p id="result"></p>
-  <footer>Version <span id="version"></span></footer>
+  <div class="card">
+    <h1>Study Session Planner</h1>
+    <p class="made-by">Made by: Member 1 name and Member 2 name</p>
+
+    <label>Total study time (minutes)
+      <input id="totalMinutes" type="number" value="120">
+    </label>
+
+    <div class="row">
+      <label>Focus (min)
+        <input id="focusMinutes" type="number" value="25">
+      </label>
+      <label>Pomodoros per long break
+        <input id="cycle" type="number" value="4">
+      </label>
+    </div>
+
+    <div class="row">
+      <label>Short break (min)
+        <input id="shortBreak" type="number" value="5">
+      </label>
+      <label>Long break (min)
+        <input id="longBreak" type="number" value="15">
+      </label>
+    </div>
+
+    <label>Start time
+      <input id="startTime" type="time" value="14:00">
+    </label>
+
+    <button id="calculate">Plan my session</button>
+    <div id="result"></div>
+
+    <footer>Version <span id="version"></span></footer>
+  </div>
+
   <script>
     document.getElementById('calculate').addEventListener('click', async () => {
+      const result = document.getElementById('result');
       const response = await fetch('/api/plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -33,14 +117,16 @@
       });
       const data = await response.json();
       if (response.ok) {
-        document.getElementById('result').textContent =
+        result.className = '';
+        result.textContent =
           'Pomodoros: ' + data.pomodoros +
           ' | Focus: ' + data.focusMinutes + ' min' +
           ' | Breaks: ' + data.breakMinutes + ' min' +
           ' | Leftover: ' + data.leftoverMinutes + ' min' +
           ' | Finish at: ' + data.endTime;
       } else {
-        document.getElementById('result').textContent = 'Error: ' + data.error;
+        result.className = 'error';
+        result.textContent = 'Error: ' + data.error;
       }
     });
 

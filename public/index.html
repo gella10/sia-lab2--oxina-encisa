@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Session Planner</title>
+</head>
+<body>
+  <h1>Study Session Planner</h1>
+  <p>Made by: <Member 1 name> and <Member 2 name></p>
+  <label>Total study time (minutes): <input id="totalMinutes" type="number" value="120"></label><br>
+  <label>Focus length (minutes): <input id="focusMinutes" type="number" value="25"></label><br>
+  <label>Short break (minutes): <input id="shortBreak" type="number" value="5"></label><br>
+  <label>Long break (minutes): <input id="longBreak" type="number" value="15"></label><br>
+  <label>Pomodoros before a long break: <input id="cycle" type="number" value="4"></label><br>
+  <label>Start time: <input id="startTime" type="time" value="14:00"></label><br>
+  <button id="calculate">Plan my session</button>
+  <p id="result"></p>
+  <footer>Version <span id="version"></span></footer>
+  <script>
+    document.getElementById('calculate').addEventListener('click', async () => {
+      const response = await fetch('/api/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          totalMinutes: document.getElementById('totalMinutes').value,
+          focusMinutes: document.getElementById('focusMinutes').value,
+          shortBreak: document.getElementById('shortBreak').value,
+          longBreak: document.getElementById('longBreak').value,
+          cycle: document.getElementById('cycle').value,
+          startTime: document.getElementById('startTime').value
+        })
+      });
+      const data = await response.json();
+      if (response.ok) {
+        document.getElementById('result').textContent =
+          'Pomodoros: ' + data.pomodoros +
+          ' | Focus: ' + data.focusMinutes + ' min' +
+          ' | Breaks: ' + data.breakMinutes + ' min' +
+          ' | Leftover: ' + data.leftoverMinutes + ' min' +
+          ' | Finish at: ' + data.endTime;
+      } else {
+        document.getElementById('result').textContent = 'Error: ' + data.error;
+      }
+    });
+
+    fetch('/health')
+      .then((response) => response.json())
+      .then((data) => {
+        document.getElementById('version').textContent = data.version;
+      });
+  </script>
+</body>
+</html>

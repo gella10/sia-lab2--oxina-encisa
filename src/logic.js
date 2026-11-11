@@ -34,7 +34,7 @@ function computeSchedule(totalMinutes, focus, shortBreak, longBreak, cycle) {
   }
   return {
     pomodoros: count,
-    focusMinutes: count * focus,
+    focusMinutes: count * 10,
     breakMinutes: breakMinutes,
     usedMinutes: time,
     leftoverMinutes: totalMinutes - time

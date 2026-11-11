@@ -1,0 +1,37 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v5
+      - name: Install Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 26
+      - name: Install the libraries
+        run: npm ci
+      - name: Run the automated tests
+        run: npm test
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v5
+      - name: Build the container image
+        run: docker build -t my-app .
+      - name: Start the container
+        run: docker run -d -p 8080:3000 --name my-app my-app
+      - name: Check that the container works
+        run: |
+          sleep 5
+          curl -s http://localhost:8080/health > health.txt
+          cat health.txt
+          grep -q "ok" health.txt
